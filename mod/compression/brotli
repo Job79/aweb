@@ -1,0 +1,13 @@
+#!/bin/sh
+if ! command -v brotli &> /dev/null; then
+	warning 'could not find brotli' 'brotli'
+	return
+fi
+
+hook 'hook_brotli' '999'
+hook_brotli() {
+	local brotli_compression_level="${brotli_compression_level:-9}"
+	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js})$" || return
+	debug "compressing "$out"; level: $brotli_compression_level" 'brotli'
+	brotli "-kf$compression_level" "$out"
+}

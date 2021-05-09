@@ -1,0 +1,36 @@
+#!/bin/sh
+# mkweb v0.1; copyright 2021 Job79
+# license: mit-license.org
+HELP(){ printf "USAGE
+	mkweb command [args...]
+
+COMMANDS
+	run [filter]		Generate website
+	clean			Remove generated website files
+	crun [filter]		Regenerate website
+"; }
+RUN(){
+	[ -x 'config' ] && . 'config'
+	find 'src' -name "${1:-*}" -type f -print0 | while read -d $'\0' in
+	do
+		out="out${in:3}"; outdir="${out%/*}"
+		if [ ! -f "$out" -o "$in" -nt "$out" ]; then
+			log "$in" 'run'
+			[ ! -d "$outdir" ] && mkdir -p "$outdir"
+			[ -x "$in" ] && . "$in" > "$out" || cp "$in" "$out"
+			printf "$hooks" | sort -n | cut -f2 -d: | while read hook; do $hook; done;
+		fi
+	done
+	[ -x 'publish' ] && . 'publish'
+}
+CLEAN(){ log 'cleaned output folder'; rm -rf out; }
+
+cd "$(dirname "$(realpath "$0")")";
+debug='0'; . 'lib'
+case "$1" in
+	run) shift; RUN "$@" ;;
+	clean) shift; CLEAN "$@" ;;
+	crun) shift; CLEAN; RUN; "$@" ;;
+	*) HELP ;;
+esac
+exit 0

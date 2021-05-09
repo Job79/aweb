@@ -1,0 +1,11 @@
+#!/bin/sh
+hook 'hook_templates' '500'
+hook_templates() {(
+	local template="src/${template:-template}"
+	[ ! -x "$template" ] && return
+	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
+
+	debug "applying template to $out" 'templates'
+	content="$(cat "$out")"
+	. "src/$template" > "$out"
+)}

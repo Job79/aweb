@@ -1,0 +1,13 @@
+#!/bin/sh
+if command -v cmark &> /dev/null; then
+	local engine='cmark'
+elif command -v markdown &> /dev/null; then
+	local engine='markdown'
+else
+	warning 'could not find a markdown engine' 'markdown'
+	return
+fi
+
+debug 'detected cmark as markdown engine' 'markdown'
+alias _m="cat<<\_m | $engine"
+alias __m="cat<<__m | $engine"

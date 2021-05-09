@@ -1,0 +1,11 @@
+#!/bin/sh
+use(){ for p in "$@"; do [ -x "mod/$p" ] || return; debug "loading module $p"; . "mod/$p"; done }
+hook(){ debug "registering hook $2:$1"; hooks="$hooks\n$2:$1"; }
+
+log(){ printf "\e[0;35m[\e[0m${2:-info}\e[0;35m]\e[0m $1\n" >&2; }
+warning() { printf "[\e[0;33m${2:-warning}\e[0m] $1\e[0m\n" >&2; }
+error() { printf "[\e[0;31m${2:-error}\e[0m] $1\e[0m\n" >&2; }
+debug(){ [ "$debug" = '1' ] && printf "\e[0;33m[\e[0m${2:-debug}\e[0;33m]\e[0m $1\n" >&2; }
+
+alias _='cat<<\_'
+alias __='cat<<__'
