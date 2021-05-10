@@ -1,8 +1,8 @@
 #!/bin/sh
 hook 'hook_templates' '500'
 hook_templates() {(
-	template="src/${template:-template}"
-	[ ! -x "$template" ] && return
+	template="${template:-template}"
+	[ ! -x "src/$template" ] && warning 'template file not found' 'templates' && return
 	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
 
 	debug "applying template to $out" 'templates'
