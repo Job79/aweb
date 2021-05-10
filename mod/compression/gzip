@@ -1,13 +1,13 @@
 #!/bin/sh
-if ! command -v gzip &> /dev/null; then
+if ! command -v gzip 2>&1 /dev/null; then
 	warning 'could not find gzip' 'brotli'
 	return
 fi
 
 hook 'hook_gzip' '999'
 hook_gzip() {
-	local gzip_compression_level="${gzip_compression_level:-9}"
+	gzip_compression_level="${gzip_compression_level:-9}"
 	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js})$" || return
-	debug "compressing "$out"; level: $gzip_compression_level" 'gzip'
-	gzip "-kf$compression_level" "$out"
+	debug "compressing $out; level: $gzip_compression_level" 'gzip'
+	gzip "-kf$gzip_compression_level" "$out"
 }

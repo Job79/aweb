@@ -1,5 +1,5 @@
 #!/bin/sh
-use(){ for p in "$@"; do [ -x "mod/$p" ] || return; debug "loading module $p"; . "mod/$p"; done }
+use(){ for p in "$@"; do [ -x "mod/$p" ] || return; debug "loading module $p"; . "./mod/$p"; done }
 hook(){ debug "registering hook $2:$1"; hooks="$hooks\n$2:$1"; }
 
 log(){ printf '\e[0;35m[\e[0m%s\e[0;35m]\e[0m %s\n' "${2:-info}" "$1"  >&2; }
