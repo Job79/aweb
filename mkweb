@@ -5,20 +5,20 @@ HELP(){ printf "USAGE
 	mkweb command [args...]
 
 COMMANDS
-	run [filter]		Generate website
+	run [filter]		Generate changed files
+	crun [filter]		Clean and generate files
 	clean			Remove generated website files
-	crun [filter]		Regenerate website
 "; }
 RUN(){
 	[ -x 'config' ] && . './config'
 	find 'src' -name "${1:-*}" -type f | while read -r in
 	do
-		out="out/${in#*/}"; outdir="${out%/*}"
-		if [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
+		out="out/${in#*/}"
+		if [ ! -z "$1" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
 			log "$in" 'run'
-			[ ! -d "$outdir" ] && mkdir -p "$outdir"
+			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" > "$out"; else cp "$in" "$out"; fi
-			echo "$hooks" | sort -n | while read -r hook; do ${hook#*:}; done;
+			printf "$hooks" | sort -n | while read -r hook; do ${hook#*:}; done;
 		fi
 	done
 	[ -x 'publish' ] && . './publish'
@@ -26,11 +26,11 @@ RUN(){
 CLEAN(){ log 'cleaned output folder'; rm -rf out; }
 
 cd "$(dirname "$(realpath "$0")")" || exit;
-debug='1'; . './lib'
+debug='0'; . './lib'
 case "$1" in
 	run) shift; RUN "$@" ;;
-	clean) shift; CLEAN "$@" ;;
 	crun) shift; CLEAN; RUN; "$@" ;;
+	clean) shift; CLEAN "$@" ;;
 	*) HELP ;;
 esac
 exit 0
