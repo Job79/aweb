@@ -1,5 +1,5 @@
 #!/bin/sh
-if ! command -v brotli 2>&1 /dev/null; then
+if ! command -v brotli >/dev/null 2>&1; then
 	warning 'could not find brotli' 'brotli'
 	return
 fi

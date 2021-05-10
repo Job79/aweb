@@ -1,7 +1,7 @@
 #!/bin/sh
-if command -v cmark 2>&1 /dev/null; then
+if command -v cmark >/dev/null 2>&1; then
 	engine='cmark'
-elif command -v markdown 2>&1 /dev/null; then
+elif command -v markdown >/dev/null 2>&1; then
 	engine='markdown'
 else
 	warning 'could not find a markdown engine' 'markdown'
