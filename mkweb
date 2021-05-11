@@ -11,14 +11,14 @@ COMMANDS
 "; }
 RUN(){
 	[ -x 'config' ] && . './config'
-	find 'src' -name "${1:-*}" -type f | while read -r in
+	find 'src' -type f \( -name "${1:-*}" ! -name '_*' \) | while read -r in
 	do
 		out="out/${in#*/}"
-		if [ ! -z "$1" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
+		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
 			log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" > "$out"; else cp "$in" "$out"; fi
-			printf "$hooks" | sort -n | while read -r hook; do ${hook}; done
+			for h in $hooks; do ${h#*:}; done
 		fi
 	done
 	[ -x 'publish' ] && . './publish'

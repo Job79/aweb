@@ -1,11 +1,11 @@
 #!/bin/sh
-hook '50_hook_templates'
-50_hook_templates() {(
-	template="${template:-template}"
-	[ ! -x "src/$template" ] && warning 'template file not found' 'templates' && return
+hook '50' 'hook_templates'
+hook_templates() {(
+	template="${template:-_layout}"
+	[ ! -x "src/$template" ] && warning "template file not found; missing: $template" 'templates' && return
 	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
 
-	debug "applying template to $out" 'templates'
+	debug "applying $template to $out" 'templates'
 	content="$(cat "$out")"
 	. "./src/$template" > "$out"
 )}
