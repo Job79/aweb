@@ -18,7 +18,7 @@ RUN(){
 			log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" > "$out"; else cp "$in" "$out"; fi
-			printf "$hooks" | sort -n | while read -r hook; do ${hook#*:}; done;
+			printf "$hooks" | sort -n | while read -r hook; do ${hook}; done
 		fi
 	done
 	[ -x 'publish' ] && . './publish'
