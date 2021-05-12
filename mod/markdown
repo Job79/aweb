@@ -1,4 +1,9 @@
 #!/bin/sh
+# add markdown support to mkweb
+#
+# USAGE [ function ]
+#	install cmark or markdown and invoke this module
+#	then use the functions (m_ or m__) to render markdown content
 if command -v cmark >/dev/null 2>&1; then
 	engine='cmark'
 elif command -v markdown >/dev/null 2>&1; then

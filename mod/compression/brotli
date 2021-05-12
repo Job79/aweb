@@ -1,4 +1,14 @@
 #!/bin/sh
+# create brotli compressed versions of website files
+#
+# USAGE [ hook ]
+#	install brotli and invoke this module
+#
+# VARIABLES
+#	brotli_compression_level; default: 9
+#		the used brotli compression level
+#	compression_filter; default: html|css|js
+#		list of targeted filetypes
 if ! command -v brotli >/dev/null 2>&1; then
 	warning 'could not find brotli' 'brotli'
 	return

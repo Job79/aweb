@@ -1,4 +1,15 @@
 #!/bin/sh
+# add template (default layout) support to mkweb
+#
+# USAGE [ hook ]
+#	create a layout script and invoke this module
+#	the layout page should output the content variable
+#
+# VARIABLES
+#	template
+#		flags for the minify application
+#	template_filter; default: html
+#		list of targeted filetypes
 hook '5' 'hook_templates'
 hook_templates() {(
 	template="${template:-_layout.html}"
