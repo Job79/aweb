@@ -4,7 +4,7 @@ if ! command -v brotli >/dev/null 2>&1; then
 	return
 fi
 
-hook '99' 'hook_brotli'
+hook '9' 'hook_brotli'
 hook_brotli() {
 	brotli_compression_level="${brotli_compression_level:-9}"
 	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js})$" || return
