@@ -26,7 +26,7 @@ RUN(){
 CLEAN(){ log 'cleaned output folder'; rm -rf out; }
 
 cd "$(dirname "$(realpath "$0")")" || exit;
-debug='0'; . './lib'
+debug='0'; PATH="./mod/bin:$PATH"; . './lib'
 case "$1" in
 	run) shift; RUN "$@" ;;
 	crun) shift; CLEAN; RUN; "$@" ;;
