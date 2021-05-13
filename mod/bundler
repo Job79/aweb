@@ -1,0 +1,16 @@
+#!/bin/sh
+# bundle multiple files into 1
+#
+# USAGE [ function ]
+#	invoke this script and call the bundle function
+#	the first parameter for the bundel function is the ouput file, the others are input files
+bundle() {
+	out="out/$1"; shift
+	[ ! -d "${out%/*}" ] && mkdir -p "${out%/*}"
+	[ -f "$out" ] && rm "$out"
+
+	log "generating bundle $out" 'bundler'
+	for f in "$@"; do cat 'src/'$f >> "$out"; done
+	for h in $hooks; do ${h#*:}; done
+	unset out;
+}
