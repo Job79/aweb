@@ -11,16 +11,16 @@ COMMANDS
 "; }
 RUN(){
 	[ -x 'config' ] && . './config'
-	find 'src' -type f \( -name "${1:-*}" ! -name '_*' \) | while read -r in
+	find 'src' -type f \( -name "${2:-*}" ! -name '_*' \) | while read -r in
 	do
 		out="out/${in#*/}"
-		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
+		if [ -n "$2" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
 			log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" > "$out"; else cp "$in" "$out"; fi
-			for h in $hooks; do ${h#*:}; done
+			(for h in $hooks; do ${h#*:}; done)&
 		fi
-	done
+	done; wait
 	[ -x 'publish' ] && . './publish'
 }
 CLEAN(){ log 'cleaned output folder'; rm -rf out; }
@@ -28,6 +28,7 @@ CLEAN(){ log 'cleaned output folder'; rm -rf out; }
 # LIB #
 use(){ for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done }
 hook(){ debug "registering hook $1"; hooks="$(printf "%s\n" $hooks "$1:$2" | sort -n | tr '\n' ' ')"; }
+include(){ [ -f "src/$1" ] && . "./src/$1"; }
 
 log(){ printf '\e[0;35m[\e[0m%s\e[0;35m]\e[0m %s\n' "${2:-info}" "$1" >&2; }
 warning() { printf '[\e[0;33m%s\e[0m] %s\n' "${2:-warning}" "$1" >&2; }
@@ -36,13 +37,12 @@ debug(){ [ "$debug" = '1' ] && printf '\e[0;33m[\e[0m%s\e[0;33m]\e[0m %s\n' "${2
 
 alias _='cat<<\_'; alias __='cat<<__'
 
-# INPUT #
+# RUN #
 cd "$(dirname "$(realpath "$0")")" || exit;
-debug='0'; PATH="./mod/bin:$PATH"
+debug='0'; PATH="./bin:$PATH"; exec 2>&1
 case "$1" in
-	run) shift; RUN "$@" ;;
-	crun) shift; CLEAN; RUN; "$@" ;;
-	clean) shift; CLEAN "$@" ;;
+	run) RUN "$@" ;;
+	crun) CLEAN; RUN "$@" ;;
+	clean) CLEAN ;;
 	*) HELP ;;
-esac
-exit 0
+esac; exit 0
