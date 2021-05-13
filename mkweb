@@ -11,23 +11,23 @@ COMMANDS
 "; }
 RUN(){
 	[ -x 'config' ] && . './config'
-	find 'src' -type f \( -name "${2:-*}" ! -name '_*' \) | while read -r in
+	$(find 'src' -type f \( -name "${2:-*}" ! -path '*_*' \) | while read -r in
 	do
 		out="out/${in#*/}"
 		if [ -n "$2" ] || [ ! -f "$out" ] || [ "$( find "$in" -newer "$out" )" ]; then
 			log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" > "$out"; else cp "$in" "$out"; fi
-			(for h in $hooks; do ${h#*:}; done)&
+			(for h in $hooks; do ${h#*:} >&2; done)&
 		fi
-	done; wait
+	done)
 	[ -x 'publish' ] && . './publish'
 }
 CLEAN(){ log 'cleaned output folder'; rm -rf out; }
 
 # LIB #
 use(){ for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done }
-hook(){ debug "registering hook $1"; hooks="$(printf "%s\n" $hooks "$1:$2" | sort -n | tr '\n' ' ')"; }
+hook(){ debug "registering hook $1:$2"; hooks="$(printf '%s\n' $hooks "$1:$2" | sort -n | tr '\n' ' ')"; }
 include(){ [ -f "src/$1" ] && . "./src/$1"; }
 
 log(){ printf '\e[0;35m[\e[0m%s\e[0;35m]\e[0m %s\n' "${2:-info}" "$1" >&2; }
