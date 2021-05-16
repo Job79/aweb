@@ -1,8 +1,8 @@
 #!/bin/sh
-# mkweb v0.1; copyright 2021 Job79
+# aweb v0.1; copyright 2021 Job79
 # license: mit-license.org
 HELP(){ printf "USAGE
-	mkweb command [args...]
+	aweb command [args...]
 
 COMMANDS
 	run [filter]		Generate changed files
