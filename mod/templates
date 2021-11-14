@@ -1,5 +1,5 @@
 #!/bin/sh
-# add template (default layout) support to mkweb
+# add template (default layout) support to aweb
 #
 # USAGE [ hook ]
 #	create a layout script and invoke this module
