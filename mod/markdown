@@ -1,5 +1,5 @@
 #!/bin/sh
-# add markdown support to mkweb
+# add markdown support to aweb
 #
 # USAGE [ function ]
 #	install cmark or markdown and invoke this module
