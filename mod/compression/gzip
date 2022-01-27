@@ -1,23 +1,14 @@
 #!/bin/sh
 # create gzip compressed versions of website files
-#
-# USAGE [ hook ]
-#	install gzip and invoke this module
-#
-# VARIABLES
-#	gzip_compression_level; default: 9
-#		the used gzip compression level
-#	compression_filter; default: html|css|js
-#		list of targeted filetypes
 if ! command -v gzip >/dev/null 2>&1; then
-	warning 'could not find gzip' 'gzip'
+	warn 'could not find gzip' 'gzip'
 	return
 fi
 
 hook '9' 'hook_gzip'
 hook_gzip() {
 	gzip_compression_level="${gzip_compression_level:-9}"
-	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js})$" || return
+	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js|svg})$" || return
 	debug "compressing $out; level: $gzip_compression_level" 'gzip'
 	gzip "-kf$gzip_compression_level" "$out"
 }

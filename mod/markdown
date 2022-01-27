@@ -1,19 +1,13 @@
 #!/bin/sh
 # add markdown support to aweb
-#
-# USAGE [ function ]
-#	install cmark or markdown and invoke this module
-#	then use the functions (m_ or m__) to render markdown content
 if command -v cmark >/dev/null 2>&1; then
-	engine='cmark'
+	debug "detected cmark as markdown engine" 'markdown'
+	alias _m="cat<<\_m | cmark"
+	alias __m="cat<<__m | cmark"
 elif command -v markdown >/dev/null 2>&1; then
-	engine='markdown'
+	debug "detected markdown as markdown engine" 'markdown'
+	alias _m="cat<<\_m | markdown"
+	alias __m="cat<<__m | markdown"
 else
-	warning 'could not find a markdown engine' 'markdown'
-	return
+	err 'could not detect markdown engine' 'markdown'
 fi
-
-debug 'detected cmark as markdown engine' 'markdown'
-alias _m="cat<<\_m | $engine"
-alias __m="cat<<__m | $engine"
-unset engine

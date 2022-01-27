@@ -1,22 +1,12 @@
 #!/bin/sh
-# add template (default layout) support to aweb
-#
-# USAGE [ hook ]
-#	create a layout script and invoke this module
-#	the layout page should output the content variable
-#
-# VARIABLES
-#	template
-#		flags for the minify application
-#	template_filter; default: html
-#		list of targeted filetypes
+# add template support to aweb
 hook '5' 'hook_templates'
-hook_templates() {(
+hook_templates(){
 	template="${template:-_layout.html}"
-	[ ! -x "src/$template" ] && warning "template file not found; missing: $template" 'templates' && return
+	[ -x "src/$template" ] || err "template file not found; missing: $template" 'templates'
 	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
-
 	debug "applying $template to $out" 'templates'
 	content="$(cat "$out")"
 	. "./src/$template" > "$out"
-)}
+	unset content
+}

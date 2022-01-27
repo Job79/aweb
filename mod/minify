@@ -1,21 +1,12 @@
 #!/bin/sh
-# minify (optimize) html, css, js, json, svg and xml files
-#
-# USAGE [ hook ]
-#	install minify and invoke this module
-#
-# VARIABLES
-#	minify_flags
-#		flags for the minify application
-#	minify_filter; default: html|css|js|json|svg|xml
-#		list of targeted filetypes
+# minify html, css, js, json, svg and xml files
 if ! command -v minify >/dev/null 2>&1; then
-	warning 'could not find minify binary; download: github.com/tdewolff/minify' 'minify'
-	return
+	err 'could not find minify binary; download: github.com/tdewolff/minify' 'minify'
+	exit
 fi
 
-hook '8' 'hook_minify'
-hook_minify() {
+hook 8 'hook_minify'
+hook_minify(){
 	echo "${out##*.}" | grep -Eq "^(${minify_filter:-html|css|js|json|svg|xml})$" || return
 	debug "optimizing $out" 'minify'
 	minify "$out" --output "$out" $minify_flags
