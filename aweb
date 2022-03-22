@@ -16,7 +16,8 @@ RUN(){
 }
 
 use(){ for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done; }
-hook(){ debug "registering hook $1:$2"; hooks="$(printf '%s\n' $hooks "$1:$2" | sort -n | tr '\n' ' ')"; }
+hook(){ debug "registering hook $1:$2"; hooks="$(printf "$1:$2\n$hooks" | sort -n)"; }
+
 include(){ [ -x "src/$1" ] && . "./src/$1"; }
 log(){ printf '\e[0;%sm[\e[0m%s\e[0;%sm]\e[0m %s\n' "${3:-35}" "${2:-info}" "${3:-35}" "$1"; }
 warn(){ log "$1" "${2:-warning}" 33; }
@@ -26,6 +27,7 @@ alias _='cat<<\_'; alias __='cat<<__'
 
 cd "$(dirname "$(realpath "$0")")" || exit
 PATH="./bin:$PATH"
+
 case "$1" in
 	run) RUN "$2" ;;
 	clean) rm -rf out ;;

@@ -9,5 +9,5 @@ hook 8 'hook_minify'
 hook_minify(){
 	echo "${out##*.}" | grep -Eq "^(${minify_filter:-html|css|js|json|svg|xml})$" || return
 	debug "optimizing $out" 'minify'
-	minify "$out" --output "$out" $minify_flags
+	minify "$out" --output "$out" "$minify_flags"
 }
