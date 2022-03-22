@@ -3,6 +3,7 @@ HELP(){ echo "AWEB V1; made by Job79
 run [filter]	generate changed files
 clean		delete generated files";}
 RUN(){
+  [ -x 'config' ] && . './config'
 	(find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
 		out="out/${in#*/}"
 		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$in" -nt "$out" ]; then
@@ -25,7 +26,6 @@ alias _='cat<<\_'; alias __='cat<<__'
 
 cd "$(dirname "$(realpath "$0")")" || exit
 PATH="./bin:$PATH"
-[ -x 'config' ] && . './config'
 case "$1" in
 	run) RUN "$2" ;;
 	clean) rm -rf out ;;
