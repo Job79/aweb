@@ -6,7 +6,7 @@ RUN(){
   [ -x 'config' ] && . './config'
 	(find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
 		out="out/${in#*/}"
-		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$in" -nt "$out" ]; then
+		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$(($(date -r "$in" +%s)-$(date -r "$out" +%s)))" -gt 0 ]; then
 			(log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" >"$out"; else cp "$in" "$out"; fi
