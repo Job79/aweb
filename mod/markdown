@@ -1,13 +1,11 @@
 #!/bin/sh
-# add markdown support to aweb
+# markdown support for aweb
 if command -v cmark >/dev/null 2>&1; then
-	debug "detected cmark as markdown engine" 'markdown'
-	alias _m="cat<<\_m | cmark"
-	alias __m="cat<<__m | cmark"
+	debug 'detected cmark as markdown engine' 'markdown'
+	alias _m='cat<<\_m | cmark' __m='cat<<__m | cmark'
 elif command -v markdown >/dev/null 2>&1; then
-	debug "detected markdown as markdown engine" 'markdown'
-	alias _m="cat<<\_m | markdown"
-	alias __m="cat<<__m | markdown"
+	debug 'detected markdown as markdown engine' 'markdown'
+	alias _m='cat<<\_m | markdown' __m='cat<<__m | markdown'
 else
 	err 'could not detect markdown engine' 'markdown'
 fi

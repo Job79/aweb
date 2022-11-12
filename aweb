@@ -1,12 +1,12 @@
 #!/bin/sh
-HELP(){ echo "AWEB V1; made by Job79
+HELP() { echo "AWEB V1; made by Job79
 run [filter]	generate changed files
-clean		delete generated files";}
-RUN(){
-  [ -x 'config' ] && . './config'
+clean		delete generated files"; }
+RUN() {
+	[ -x 'config' ] && . './config'
 	(find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
 		out="out/${in#*/}"
-		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$(($(date -r "$in" +%s)-$(date -r "$out" +%s)))" -gt 0 ]; then
+		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$in" -nt "$out" ]; then
 			(log "$in" 'run'
 			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
 			if [ -x "$in" ]; then . "./$in" >"$out"; else cp "$in" "$out"; fi
@@ -15,18 +15,16 @@ RUN(){
 	done) | cat
 }
 
-use(){ for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done; }
-hook(){ debug "registering hook $1:$2"; hooks="$(printf "$1:$2\n$hooks" | sort -n)"; }
-
-include(){ [ -x "src/$1" ] && . "./src/$1"; }
-log(){ printf '\e[0;%sm[\e[0m%s\e[0;%sm]\e[0m %s\n' "${3:-35}" "${2:-info}" "${3:-35}" "$1"; }
-warn(){ log "$1" "${2:-warning}" 33; }
-err(){ log "$1" "${2:-error}" 31; exit 1; }
-debug(){ [ "$debug" = '1' ] && log "$1" "${2:-debug}"; }
+use() { for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done; }
+hook() { debug "registering hook $1:$2"; hooks="$(printf '%s:%s\n%s' "$1" "$2" "$hooks" | sort -n)"; }
+include() { [ -x "src/$1" ] && . "./src/$1"; }
+log() { printf '\e[0;%sm[\e[0m%s\e[0;%sm]\e[0m %s\n' "${3:-35}" "${2:-info}" "${3:-35}" "$1"; }
+warn() { log "$1" "${2:-warning}" 33; }
+err() { log "$1" "${2:-error}" 31; exit 1; }
+debug(){ [ "$debug" = 1 ] && log "$1" "${2:-debug}"; }
 
 cd "$(dirname "$(realpath "$0")")" || exit
 PATH="./bin:$PATH"
-
 case "$1" in
 	run) RUN "$2" ;;
 	clean) rm -rf out ;;

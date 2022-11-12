@@ -1,14 +1,14 @@
 #!/bin/sh
-# create brotli compressed versions of website files
+# brotli compress website files
 if ! command -v brotli >/dev/null 2>&1; then
 	warn 'could not find brotli' 'brotli'
 	return
 fi
 
-hook '9' 'hook_brotli'
+hook 9 'hook_brotli'
 hook_brotli() {
-	brotli_compression_level="${brotli_compression_level:-9}"
-	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js|svg})$" || return
+	brotli_compression_level="${brotli_compression_level:-Z}"
+	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js|svg|ico|atom})$" || return
 	debug "compressing $out; level: $brotli_compression_level" 'brotli'
 	brotli "-kf$brotli_compression_level" "$out"
 }

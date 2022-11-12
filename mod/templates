@@ -1,12 +1,12 @@
 #!/bin/sh
-# add template support to aweb
-hook '5' 'hook_templates'
+# template support for aweb
+hook 5 'hook_templates'
 hook_templates(){
-	template="${template:-_layout.html}"
-	[ -x "src/$template" ] || err "template file not found; missing: $template" 'templates'
+	template="${template:-src/_layout.html}"
+	[ -x "$template" ] || err "template file not found; missing: $template" 'templates'
 	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
 	debug "applying $template to $out" 'templates'
 	content="$(cat "$out")"
-	. "./src/$template" > "$out"
+	. "$template" > "$out"
 	unset content
 }

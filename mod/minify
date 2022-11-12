@@ -1,5 +1,5 @@
 #!/bin/sh
-# minify html, css, js, json, svg and xml files
+# minify website files
 if ! command -v minify >/dev/null 2>&1; then
 	err 'could not find minify binary; download: github.com/tdewolff/minify' 'minify'
 	exit
@@ -8,6 +8,6 @@ fi
 hook 8 'hook_minify'
 hook_minify(){
 	echo "${out##*.}" | grep -Eq "^(${minify_filter:-html|css|js|json|svg|xml})$" || return
-	debug "optimizing $out" 'minify'
+	debug "minifying $out" 'minify'
 	minify "$out" --output "$out" $minify_flags
 }
