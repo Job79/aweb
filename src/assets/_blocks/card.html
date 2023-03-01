@@ -1,0 +1,15 @@
+@block
+	@html
+		<div class="card">
+			<div class="flex">
+				<svg width="60" height="60">
+					<use href="/assets/icons.svg#header"/>
+				</svg>
+				<h2>$1</h2>
+			</div>
+	@^html
+	@block-content
+	@html
+		</div>
+	@^html
+@^block

@@ -1,14 +1,21 @@
 #!/bin/sh
-# brotli compress website files
+# brotli compresses website files
+#
+# PARAMS
+# $compression_filter list with extensions that should be compressed
+# $brotli_compression_level compression level
 if ! command -v brotli >/dev/null 2>&1; then
-	warn 'could not find brotli' 'brotli'
+	err 'could not find brotli binary' 'brotli'
 	return
 fi
 
-hook 9 'hook_brotli'
+hook 'hook_brotli'
 hook_brotli() {
-	brotli_compression_level="${brotli_compression_level:-Z}"
-	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js|svg|ico|atom})$" || return
-	debug "compressing $out; level: $brotli_compression_level" 'brotli'
-	brotli "-kf$brotli_compression_level" "$out"
+	for ext in ${compression_filter:-html css js svg ico atom}; do
+		[ "${out##*.}" = "$ext" ] || continue
+		clevel="${brotli_compression_level:-Z}"
+		dbg "$out; level: $clevel" 'brotli'
+		brotli "-kf$clevel" "$out"
+		return
+	done
 }

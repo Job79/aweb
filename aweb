@@ -1,32 +1,77 @@
-#!/bin/sh
-HELP() { echo "AWEB V1; made by Job79
-run [filter]	generate changed files
-clean		delete generated files"; }
-RUN() {
-	[ -x 'config' ] && . './config'
-	(find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
-		out="out/${in#*/}"
-		if [ -n "$1" ] || [ ! -f "$out" ] || [ "$in" -nt "$out" ]; then
-			(log "$in" 'run'
-			outdir="${out%/*}"; [ ! -d "$outdir" ] && mkdir -p "$outdir"
-			if [ -x "$in" ]; then . "./$in" >"$out"; else cp "$in" "$out"; fi
-			for h in $hooks; do ${h#*:}; done)&
-		fi
-	done) | cat
+#!/bin/sh -e
+# aweb static website generator. This script contains the
+# base functions, use modules for extra functionality.
+# This script works with bash, ash, dash and ksh but is not
+# fully posix compatable.
+
+# use loads the given modules
+# $@ array of modules
+use() {
+	for m in "$@"; do
+		[ -x "mod/$m" ] || continue
+		dbg "loading $m" 'module'
+		. "./mod/$m"
+	done
 }
 
-use() { for p in "$@"; do [ -x "mod/$p" ] || continue; debug "loading module $p"; . "./mod/$p"; done; }
-hook() { debug "registering hook $1:$2"; hooks="$(printf '%s\n%s' "$1:$2" "$hooks" | sort -n)"; }
-include() { [ -x "src/$1" ] && . "./src/$1"; }
-log() { printf '\e[0;%sm[\e[0m%s\e[0;%sm]\e[0m %s\n' "${3:-35}" "${2:-info}" "${3:-35}" "$1"; }
-warn() { log "$1" "${2:-warning}" 33; }
-err() { log "$1" "${2:-error}" 31; exit 1; }
-debug(){ [ "$debug" = 1 ] && log "$1" "${2:-debug}"; }
+# hook registers the given hooks
+# $* functions to execute
+hook() {
+	dbg "registering: $*" 'hook'
+	hooks="$hooks $*"
+}
 
-cd "$(dirname "$(realpath "$0")")" || exit
+# log prints a log message
+# $1 message; $2(opt) tag; $3(opt) symbol; $4(opt) color code
+log() {
+	printf '%s \e[%sm%-6s \e[0m| %s\n' "${3:-○}" "${4:-36}" "${2:-log}" "$1"
+}
+
+# err prints an error message and stops the script
+# $1 message; $2(opt) tag
+err() {
+	log "$1" "$2" '×' 31
+	exit 1
+}
+
+# dbg prints a log message when $dbg is set to 1
+# $1 message; $2(opt) tag
+dbg() {
+	[ "$dbg" = 1 ] && log "$1" "${2:-debug}" '◌' 34 || true
+}
+
+# render processes an executable file
+# $in input file; $out output file
+render() { 
+	log "$in" 'run' '»' 35
+	. "$in"
+	page > "$out"
+}
+
+# copy processes a non-executable file
+# $in input file; $out output file
+copy() {
+	log "$in" 'copy' '↖' 35
+	cp "$in" "$out"
+}
+
+## MAIN ##
+cd "$(dirname "$(realpath "$0")")"
 PATH="./bin:$PATH"
-case "$1" in
-	run) RUN "$2" ;;
-	clean) rm -rf out ;;
-	*) HELP ;;
-esac
+
+[ -x 'config' ] && dbg 'loading configuration' 'config' && . "./config"
+[ "$1" = '*' ] && log 'cleaning output directory' 'prep' '«' 36 && rm -rf 'out'
+find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
+	out="out/${in#*/}"
+
+	if [ -n "$1" ] || [ ! -f "$out" ] || [ "$in" -nt "$out" ]; then 
+		(
+		dir="${out%/*}"; [ -d "$dir" ] || mkdir -p "$dir"
+		if [ -x "$in" ]; then render; else copy; fi
+
+		# execute hooks
+		for h in $hooks; do $h; done
+		log "$in" 'done' '✓' 32
+		)&
+	fi
+done 3>&1 1>&2 2>&3 3>&- | sed "s/^/$(err '' 'err')/" # prepend err before stderr messages

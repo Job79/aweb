@@ -1,0 +1,15 @@
+#!/bin/sh
+website='plabble'
+description='plabble server page'
+template='src/assets/_layout.html'
+
+use 'templates' 'markdown' 'alang/base' 'alang/blocks' 'minify' 'compression/gzip' 'compression/brotli'
+
+cardHeader() {
+	@html
+		<div class="card header"><h2>~ $1 ~</h2></div>
+	@^html
+}
+
+register 'cardHeader'
+blocks 'src/assets/_blocks/card.html'

@@ -1,14 +1,21 @@
 #!/bin/sh
-# gzip compress website files
+# gzip compresses website files
+#
+# PARAMS
+# $compression_filter list with extensions that should be compressed
+# $gzip_compression_level compression level
 if ! command -v gzip >/dev/null 2>&1; then
-	warn 'could not find gzip' 'gzip'
+	err 'could not find gzip binary' 'gzip'
 	return
 fi
 
-hook 9 'hook_gzip'
+hook 'hook_gzip'
 hook_gzip() {
-	gzip_compression_level="${gzip_compression_level:-9}"
-	echo "${out##*.}" | grep -Eq "^(${compression_filter:-html|css|js|svg|ico|atom})$" || return
-	debug "compressing $out; level: $gzip_compression_level" 'gzip'
-	gzip "-kf$gzip_compression_level" "$out"
+	for ext in ${compression_filter:-html css js svg ico atom}; do
+		[ "${out##*.}" = "$ext" ] || continue
+		clevel="${gzip_compression_level:-9}"
+		dbg "$out; level: $clevel" 'gzip'
+		gzip "-kf$gzip_compression_level" "$out"
+		return
+	done
 }

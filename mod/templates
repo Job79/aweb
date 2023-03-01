@@ -1,12 +1,17 @@
 #!/bin/sh
 # template support for aweb
-hook 5 'hook_templates'
-hook_templates(){
-	template="${template:-src/_layout.html}"
-	[ -x "$template" ] || err "template file not found; missing: $template" 'templates'
-	echo "${out##*.}" | grep -Eq "^(${template_filter:-html})$" || return
-	debug "applying $template to $out" 'templates'
-	content="$(cat "$out")"
-	. "$template" > "$out"
-	unset content
+#
+# PARAMS
+# $template template to use
+render() {
+	if [ ! -n "$template" ]; then
+		log "$in" 'run' '»' 35
+		. "$in"
+		page > "$out"
+		return
+	fi
+
+	log "$in; template: $template" 'run' '»' 35
+	. "$in"; . "$template" 
+	template > "$out"
 }

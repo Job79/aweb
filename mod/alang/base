@@ -1,0 +1,26 @@
+#!/bin/sh
+# defines the aweb template language
+if [ -n "$BASH_VERSION" ]; then
+	shopt -s expand_aliases
+fi
+
+alias \
+	@page='page(){' @^page='}' \
+	@template='template(){' @^template='}' @page-content='page' \
+	@plain-html='cat <<\- @^plain-html' @html='cat <<- @^html' \
+	@include='. ' \
+	@if='if' @elif='elif' @else='else' @^if='fi' \
+	@for='for' @^for='done'
+
+# register creates aweb style aliases for a list of user
+# defined functions
+# $@ user defined functions
+register(){
+	dbg "registering: $*" 'alang'
+	for func in $@; do
+		case $func in
+			end*) alias "@^${func#*end}"="$func";;
+			*) alias "@$func"="$func";;
+		esac
+	done
+}

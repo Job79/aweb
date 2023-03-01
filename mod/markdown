@@ -1,11 +1,17 @@
 #!/bin/sh
 # markdown support for aweb
-if command -v cmark >/dev/null 2>&1; then
-	debug 'detected cmark as markdown engine' 'markdown'
-	alias _m='cat<<\_m | cmark' __m='cat<<__m | cmark'
-elif command -v markdown >/dev/null 2>&1; then
-	debug 'detected markdown as markdown engine' 'markdown'
-	alias _m='cat<<\_m | markdown' __m='cat<<__m | markdown'
-else
-	err 'could not detect markdown engine' 'markdown'
-fi
+#
+# PARAMS
+# $markdown_engine binary for markdown to html convertion
+# $markdown_flags flags for markdown binary
+engines="$markdown_engine cmark cmark-gfm markdown"
+for engine in $engines; do
+	if command -v "$engine" >/dev/null 2>&1; then
+		dbg "detected $engine as markdown engine" 'mrkdwn'
+		alias @plain-markdown="$engine $markdown_flags <<-\\ @^plain-markdown" @markdown="$engine $markdown_flags <<- @^markdown"
+#		alias @plain-markdown="cat<<-\\@^plain-markdown | $engine $markdown_flags" @markdown="cat<<-@^markdown | $engine $markdown_flags"
+		return
+	fi
+done
+
+err "missing markdown engine; dowload e.g. markdown or cmark" 'mrkdwn'

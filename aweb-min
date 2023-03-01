@@ -1,0 +1,23 @@
+#!/bin/sh -e
+# aweb-min is a simplified version of aweb that is small and
+# posix compatable. It is compatable with aweb but has some
+# features removed that don't affect the generated website. 
+use(){ for m in "$@"; do [ -x "mod/$m" ] && . "./mod/$m"; done }
+hook(){ hooks="$hooks $*"; }
+log(){ printf '%-7s| %s\n' "${2:-log}" "$1"; }
+err(){ log "$@"; exit 1; }
+dbg(){ log "$@"; }
+render(){ . "$in"; page > "$out"; }
+copy(){ cp "$in" "$out"; }
+
+cd "$(dirname "$(realpath "$0")")"
+PATH="./bin:$PATH"
+[ -x 'config' ] && . './config'
+[ "$1" = '*' ] && rm -rf 'out'
+find 'src' -type f \( -path "*$1" ! -path '*_*' \) | while read -r in; do
+	(log "$in" 'run'
+	out="out/${in#*/}"; dir="${out%/*}"
+	[ -d "$dir" ] || mkdir -p "$dir"
+	if [ -x "$in" ]; then render; else copy; fi
+	for h in $hooks; do $h; done)
+done

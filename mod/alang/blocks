@@ -1,0 +1,17 @@
+#!/bin/sh
+# defines the aweb template language
+
+alias @block='block(){' @^block='}' @block-content='. /dev/stdin'
+
+
+# register creates aweb style aliases for a list of user
+# defined functions
+# $@ user defined functions
+blocks() {
+	dbg "registering: $*" 'alang'
+	for file in $@; do
+		name="${file##*/}"
+		name="${name%.*}"
+		alias "@$name"=". $file; block <<- @^$name"
+	done
+}

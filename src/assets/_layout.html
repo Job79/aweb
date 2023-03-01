@@ -1,0 +1,28 @@
+@template
+	@html
+		<!doctype html>
+		<html lang="en">
+		<head>
+			<title>$website</title>
+			<meta charset="utf-8">
+			<meta name="description" content="$description">
+			<meta name="viewport" content="width=device-width">
+			<link rel="stylesheet" href="/assets/style.css">
+			$head
+		</head>
+		<body>
+			<div class="nav card">
+				<svg width="100%"><use href="/assets/icons.svg#logo"/></svg>
+				<div><a href="/">&#9658; home</a></div>
+				<div><a href="/projects">&#9658; projects</a></div>
+			</div>
+
+			<div class="content">
+	@^html
+	@page-content
+	@html
+			</div>
+		</body>
+		</html>
+	@^html
+@^template
